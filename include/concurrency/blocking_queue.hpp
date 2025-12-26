@@ -5,13 +5,16 @@
 #include <optional>
 #include <queue>
 
-namespace cu {
+namespace cu
+{
 
 template<typename T>
-class BlockingQueue {
+class blocking_queue
+{
 public:
-    explicit BlockingQueue(size_t max_size = 0) 
-        : max_size_(max_size) {}
+    explicit blocking_queue(std::size_t max_size = 0)
+        : max_size{max_size}
+    {}
 
     void push(T value);
     std::optional<T> pop();
@@ -19,93 +22,110 @@ public:
     
     void close();
     bool is_closed() const noexcept;
-    size_t size() const noexcept;
+
+    std::size_t size() const noexcept;
     bool empty() const noexcept;
 
 private:
-    mutable std::mutex mutex_;
-    std::condition_variable not_empty_;
-    std::condition_variable not_full_;
-    std::queue<T> queue_;
-    size_t max_size_;
-    bool closed_ = false;
+    mutable std::mutex mutex;
+    std::condition_variable not_empty;
+    std::condition_variable not_full;
+    std::queue<T> queue;
+    std::size_t max_size;
+    bool closed{false};
 };
 
 template<typename T>
-void BlockingQueue<T>::push(T value) {
-    std::unique_lock<std::mutex> lock(mutex_);
+void blocking_queue<T>::push(T value)
+{
+    std::unique_lock lock(mutex);
     
-    if (max_size_ > 0) {
-        not_full_.wait(lock, [this] { 
-            return queue_.size() < max_size_ || closed_; 
+    if (max_size > 0)
+    {
+        not_full.wait(lock, [this]
+        {
+            return queue.size() < max_size || closed;
         });
     }
-    
-    if (closed_) {
+
+    if (closed)
+    {
         throw std::runtime_error("push on closed queue");
     }
-    
-    queue_.push(std::move(value));
-    not_empty_.notify_one();
+
+    queue.push(std::move(value));
+    not_empty.notify_one();
 }
 
 template<typename T>
-std::optional<T> BlockingQueue<T>::pop() {
-    std::unique_lock<std::mutex> lock(mutex_);
-    not_empty_.wait(lock, [this] { 
-        return !queue_.empty() || closed_; 
+std::optional<T> blocking_queue<T>::pop()
+{
+    std::unique_lock lock(mutex);
+
+    not_empty.wait(lock, [this]
+    {
+        return !queue.empty() || closed;
     });
     
-    if (queue_.empty()) {
+    if (queue.empty())
+    {
         return std::nullopt;
     }
     
-    T value = std::move(queue_.front());
-    queue_.pop();
-    not_full_.notify_one();
+    T value = std::move(queue.front());
+    queue.pop();
+    not_full.notify_one();
     
     return value;
 }
 
 template<typename T>
-std::optional<T> BlockingQueue<T>::try_pop() {
-    std::lock_guard<std::mutex> lock(mutex_);
+std::optional<T> blocking_queue<T>::try_pop()
+{
+    std::lock_guard lock(mutex);
     
-    if (queue_.empty()) {
+    if (queue.empty())
+    {
         return std::nullopt;
     }
-    
-    T value = std::move(queue_.front());
-    queue_.pop();
-    not_full_.notify_one();
-    
+
+    T value = std::move(queue.front());
+    queue.pop();
+    not_full.notify_one();
+
     return value;
 }
 
 template<typename T>
-void BlockingQueue<T>::close() {
-    std::lock_guard<std::mutex> lock(mutex_);
-    closed_ = true;
-    not_empty_.notify_all();
-    not_full_.notify_all();
+void blocking_queue<T>::close()
+{
+    std::lock_guard lock(mutex);
+
+    closed = true;
+
+    not_empty.notify_all();
+    not_full.notify_all();
 }
 
 template<typename T>
-bool BlockingQueue<T>::is_closed() const noexcept {
-    std::lock_guard<std::mutex> lock(mutex_);
-    return closed_;
+bool blocking_queue<T>::is_closed() const noexcept
+{
+    std::lock_guard lock(mutex);
+    return closed;
 }
 
 template<typename T>
-size_t BlockingQueue<T>::size() const noexcept {
-    std::lock_guard<std::mutex> lock(mutex_);
-    return queue_.size();
+size_t blocking_queue<T>::size() const noexcept
+{
+    std::lock_guard lock(mutex);
+    return queue.size();
 }
 
 template<typename T>
-bool BlockingQueue<T>::empty() const noexcept {
-    std::lock_guard<std::mutex> lock(mutex_);
-    return queue_.empty();
+bool blocking_queue<T>::empty() const noexcept
+{
+    std::lock_guard lock(mutex);
+    return queue.empty();
 }
 
-} // namespace concurrency
+} // namespace cu

@@ -18,7 +18,7 @@ int main() {
     }
     
     // Blocking Queue example
-    cu::BlockingQueue<int> queue;
+    cu::blocking_queue<int> queue;
     queue.push(42);
     
     if (auto value = queue.pop()) {

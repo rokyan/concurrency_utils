@@ -5,7 +5,7 @@
 using namespace cu;
 
 TEST(BlockingQueueTest, PushAndPop) {
-    BlockingQueue<int> queue;
+    blocking_queue<int> queue;
     
     queue.push(42);
     auto value = queue.pop();
@@ -15,7 +15,7 @@ TEST(BlockingQueueTest, PushAndPop) {
 }
 
 TEST(BlockingQueueTest, TryPop) {
-    BlockingQueue<int> queue;
+    blocking_queue<int> queue;
     
     auto value = queue.try_pop();
     EXPECT_FALSE(value.has_value());
@@ -27,7 +27,7 @@ TEST(BlockingQueueTest, TryPop) {
 }
 
 TEST(BlockingQueueTest, ProducerConsumer) {
-    BlockingQueue<int> queue;
+    blocking_queue<int> queue;
     constexpr int num_items = 100;
     
     std::thread producer([&queue]() {
@@ -50,7 +50,7 @@ TEST(BlockingQueueTest, ProducerConsumer) {
 }
 
 TEST(BlockingQueueTest, BoundedQueue) {
-    BlockingQueue<int> queue(2);
+    blocking_queue<int> queue(2);
     
     queue.push(1);
     queue.push(2);
