@@ -5,7 +5,7 @@
 using namespace cu;
 
 TEST(ThreadPoolTest, BasicExecution) {
-    ThreadPool pool(4);
+    thread_pool pool(4);
     
     auto future = pool.enqueue([]() {
         return 42;
@@ -15,7 +15,7 @@ TEST(ThreadPoolTest, BasicExecution) {
 }
 
 TEST(ThreadPoolTest, MultipleTasksv) {
-    ThreadPool pool(4);
+    thread_pool pool(4);
     std::vector<std::future<int>> futures;
     
     for (int i = 0; i < 10; ++i) {
@@ -30,7 +30,7 @@ TEST(ThreadPoolTest, MultipleTasksv) {
 }
 
 TEST(ThreadPoolTest, WithArguments) {
-    ThreadPool pool(2);
+    thread_pool pool(2);
     
     auto add = [](int a, int b) { return a + b; };
     auto future = pool.enqueue(add, 5, 3);
@@ -39,6 +39,6 @@ TEST(ThreadPoolTest, WithArguments) {
 }
 
 TEST(ThreadPoolTest, ThreadCount) {
-    ThreadPool pool(4);
+    thread_pool pool(4);
     EXPECT_EQ(pool.size(), 4);
 }

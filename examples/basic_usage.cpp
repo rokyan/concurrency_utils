@@ -4,7 +4,7 @@
 
 int main() {
     // Thread Pool example
-    cu::ThreadPool pool(4);
+    cu::thread_pool pool(4);
     
     std::vector<std::future<int>> results;
     for (int i = 0; i < 10; ++i) {

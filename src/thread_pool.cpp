@@ -1,59 +1,73 @@
 #include "concurrency/thread_pool.hpp"
 
-namespace cu {
+namespace cu
+{
 
-ThreadPool::ThreadPool(size_t num_threads) {
-    workers_.reserve(num_threads);
-    for (size_t i = 0; i < num_threads; ++i) {
-        workers_.emplace_back(&ThreadPool::worker_thread, this);
+thread_pool::thread_pool(size_t num_threads)
+{
+    workers.reserve(num_threads);
+
+    for (size_t i = 0; i < num_threads; ++i)
+    {
+        workers.emplace_back(&thread_pool::worker_thread, this);
     }
 }
 
-ThreadPool::~ThreadPool() {
+thread_pool::~thread_pool()
+{
     shutdown();
 }
 
-void ThreadPool::worker_thread() {
-    while (true) {
+void thread_pool::worker_thread()
+{
+    while (true)
+    {
         std::function<void()> task;
         
         {
-            std::unique_lock<std::mutex> lock(queue_mutex_);
-            condition_.wait(lock, [this] { 
-                return stop_ || !tasks_.empty(); 
+            std::unique_lock lock(queue_mutex);
+
+            condition.wait(lock, [this]
+            {
+                return stop || !tasks.empty();
             });
             
-            if (stop_ && tasks_.empty()) {
+            if (stop && tasks.empty())
+            {
                 return;
             }
             
-            task = std::move(tasks_.front());
-            tasks_.pop();
+            task = std::move(tasks.front());
+            tasks.pop();
         }
         
         task();
     }
 }
 
-void ThreadPool::shutdown() {
+void thread_pool::shutdown()
+{
     {
-        std::unique_lock<std::mutex> lock(queue_mutex_);
-        stop_ = true;
+        std::unique_lock lock(queue_mutex);
+        stop = true;
     }
-    
-    condition_.notify_all();
-    
-    for (auto& worker : workers_) {
-        if (worker.joinable()) {
+
+    condition.notify_all();
+
+    for (auto& worker : workers)
+    {
+        if (worker.joinable())
+        {
             worker.join();
         }
     }
     
-    workers_.clear();
+    workers.clear();
 }
 
-size_t ThreadPool::size() const noexcept {
-    return workers_.size();
+size_t thread_pool::size() const noexcept
+{
+    return workers.size();
 }
 
-} // namespace concurrency
+} // namespace cu
