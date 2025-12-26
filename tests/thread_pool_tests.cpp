@@ -2,43 +2,54 @@
 #include "concurrency/thread_pool.hpp"
 #include <numeric>
 
-using namespace cu;
+namespace tests
+{
 
-TEST(ThreadPoolTest, BasicExecution) {
-    thread_pool pool(4);
+TEST(ThreadPoolTest, BasicExecution)
+{
+    cu::thread_pool pool{4};
     
-    auto future = pool.enqueue([]() {
+    auto future = pool.enqueue([]()
+    {
         return 42;
     });
     
     EXPECT_EQ(future.get(), 42);
 }
 
-TEST(ThreadPoolTest, MultipleTasksv) {
-    thread_pool pool(4);
+TEST(ThreadPoolTest, MultipleTasksv)
+{
+    cu::thread_pool pool{4};
     std::vector<std::future<int>> futures;
     
-    for (int i = 0; i < 10; ++i) {
-        futures.push_back(pool.enqueue([i]() {
-            return i * i;
+    for (int idx = 0; idx < 10; ++idx)
+    {
+        futures.push_back(pool.enqueue([idx]()
+        {
+            return idx * idx;
         }));
     }
     
-    for (int i = 0; i < 10; ++i) {
-        EXPECT_EQ(futures[i].get(), i * i);
+    for (int idx = 0; idx < 10; ++idx)
+    {
+        EXPECT_EQ(futures[idx].get(), idx * idx);
     }
 }
 
-TEST(ThreadPoolTest, WithArguments) {
-    thread_pool pool(2);
-    
+TEST(ThreadPoolTest, WithArguments)
+{
+    cu::thread_pool pool{2};
+
     auto add = [](int a, int b) { return a + b; };
     auto future = pool.enqueue(add, 5, 3);
-    
+
     EXPECT_EQ(future.get(), 8);
 }
 
-TEST(ThreadPoolTest, ThreadCount) {
-    thread_pool pool(4);
+TEST(ThreadPoolTest, ThreadCount)
+{
+    cu::thread_pool pool{4};
     EXPECT_EQ(pool.size(), 4);
 }
+
+} // namespace tests

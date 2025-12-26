@@ -1,35 +1,44 @@
 #include <gtest/gtest.h>
 #include "concurrency/future_utils.hpp"
 
-using namespace cu;
+namespace tests
+{
 
-TEST(FutureUtilsTest, WaitAll) {
+TEST(FutureUtilsTest, WaitAll)
+{
     std::vector<std::future<int>> futures;
     
-    for (int i = 0; i < 5; ++i) {
-        futures.push_back(std::async(std::launch::async, [i]() {
-            return i * 2;
+    for (int idx = 0; idx < 5; ++idx)
+    {
+        futures.push_back(std::async(std::launch::async, [idx]()
+        {
+            return idx * 2;
         }));
     }
-    
-    auto results = wait_all(futures);
-    
+
+    auto results = cu::wait_all(futures);
+
     ASSERT_EQ(results.size(), 5);
-    for (size_t i = 0; i < results.size(); ++i) {
-        EXPECT_EQ(results[i], i * 2);
+    for (size_t idx = 0; idx < results.size(); ++idx)
+    {
+        EXPECT_EQ(results[idx], idx * 2);
     }
 }
 
-TEST(FutureUtilsTest, IsReady) {
-    auto future = std::async(std::launch::async, []() {
+TEST(FutureUtilsTest, IsReady)
+{
+    auto future = std::async(std::launch::async, []()
+    {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         return 42;
     });
-    
-    // Should not be ready immediately
-    EXPECT_FALSE(is_ready(future));
-    
-    // Wait and check again
+
+    // Should not be ready immediately.
+    EXPECT_FALSE(cu::is_ready(future));
+
+    // Wait and check again.
     future.wait();
-    EXPECT_TRUE(is_ready(future));
+    EXPECT_TRUE(cu::is_ready(future));
 }
+
+} // namespace tests
