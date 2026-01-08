@@ -9,7 +9,7 @@ set(TEST_SOURCES
 )
 
 # Create test executable
-add_executable(concurrency_tests ${TEST_SOURCES})
+add_executable(concurrency_tests ${TEST_SOURCES} "lookup_table_tests.cpp")
 
 target_link_libraries(concurrency_tests
     PRIVATE
