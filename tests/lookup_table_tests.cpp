@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "concurrency/lookup_table.hpp"
+#include "ccutils/lookup_table.hpp"
 #include <thread>
 #include <vector>
 

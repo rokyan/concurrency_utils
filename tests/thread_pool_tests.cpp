@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "concurrency/thread_pool.hpp"
+#include "ccutils/thread_pool.hpp"
 #include <numeric>
 
 namespace tests

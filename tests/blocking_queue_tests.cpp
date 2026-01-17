@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "concurrency/blocking_queue.hpp"
+#include "ccutils/blocking_queue.hpp"
 #include <thread>
 
 namespace tests

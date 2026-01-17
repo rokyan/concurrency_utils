@@ -1,6 +1,6 @@
 #include <iostream>
-#include "concurrency/thread_pool.hpp"
-#include "concurrency/blocking_queue.hpp"
+#include "ccutils/thread_pool.hpp"
+#include "ccutils/blocking_queue.hpp"
 
 int main() {
     // Thread Pool example
